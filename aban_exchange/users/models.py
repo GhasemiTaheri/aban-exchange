@@ -19,6 +19,9 @@ class User(AbstractUser):
     # balance field should be float for commertical use case
     balance = PositiveIntegerField(default=0, verbose_name="Wallet balance")
 
+    # token balance field used for save user assets count
+    token_balance = PositiveIntegerField(default=0, verbose_name="Wallet balance")
+
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.
 
