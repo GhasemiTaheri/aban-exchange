@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=aban_exchange
+POSTGRES_USER=JSrEWXmDWVKUVsXLouZJQkcVlXoNVEnL
+POSTGRES_PASSWORD=9TNLb4yq8wOnHp1BUUmnA47GAP6N751qavcBs059UiRqFG7Nr34pCIOqfYXXdbQa
