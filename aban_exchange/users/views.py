@@ -8,6 +8,18 @@ from .services import user_create
 
 
 class UserSignupApi(APIView):
+    """
+    API view for user signup.
+
+    Allows unauthenticated users to register by providing their username, email,
+    and password.
+    This API creates a new user and returns a success message if the data is valid.
+
+    Attributes:
+        authentication_classes: Disables authentication for this endpoint.
+        permission_classes: Allows unrestricted access to this endpoint.
+    """
+
     authentication_classes = ()
     permission_classes = ()
 
@@ -22,7 +34,7 @@ class UserSignupApi(APIView):
         serializer.is_valid(raise_exception=True)
         try:
             user_create(**serializer.validated_data)
-        except Exception:
-            raise ValidationError(detail="data is not correct!")
+        except Exception:  # noqa: BLE001
+            raise ValidationError(detail="data is not correct!")  # noqa: B904
 
         return Response(data="success", status=201)

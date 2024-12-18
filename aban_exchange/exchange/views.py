@@ -9,6 +9,17 @@ User = settings.AUTH_USER_MODEL
 
 
 class OrderCreateApi(APIView):
+    """
+    API view to handle order creation requests.
+
+    This API allows authenticated users to create new orders by providing the
+    required order details (amount and price). The order data is validated and
+    sent to a Redis queue for further processing.
+
+    Methods:
+        post: Accepts order data, validates it, and processes the order.
+    """
+
     class InputSerializer(serializers.Serializer):
         amount = serializers.IntegerField(required=True, allow_null=False, min_value=1)
         price = serializers.IntegerField(required=True, allow_null=False, min_value=1)

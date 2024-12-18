@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
-from django.db.models import CASCADE
+from django.db.models import PROTECT
 from django.db.models import ForeignKey
+from django.db.models import Index
 from django.db.models import PositiveIntegerField
 
 from aban_exchange.utils.db.models import BaseModel
@@ -10,7 +11,7 @@ from aban_exchange.utils.db.models import BaseModel
 class BaseOrder(BaseModel):
     user = ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        on_delete=CASCADE,
+        on_delete=PROTECT,
         verbose_name="Order owner",
         related_name="%(class)s_related",
         related_query_name="%(class)ss",
@@ -29,7 +30,11 @@ class BaseOrder(BaseModel):
 
 
 class Order(BaseOrder):
-    pass
+    class Meta:
+        indexes = [
+            # we index price field because we aggrigate all order by this field.
+            Index(fields=["price"]),
+        ]
 
 
 class ArchiveOrder(BaseOrder):
