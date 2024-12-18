@@ -335,3 +335,17 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+
+REQUEST_HANDLER_QUEUE_NAME = env(
+    "REQUEST_HANDLER_QUEUE_NAME",
+    default="recieve_order_queue",
+)
+REQUEST_HANDLER_BATCH_SIZE = env.int(
+    "REQUEST_HANDLER_BATCH_SIZE",
+    default=1000,
+)
+REQUEST_HANDLER_INTERVAL = env.int(
+    "REQUEST_HANDLER_INTERVAL",
+    default=500000,
+)
