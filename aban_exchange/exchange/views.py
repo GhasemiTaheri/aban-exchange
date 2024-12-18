@@ -16,8 +16,13 @@ class OrderCreateApi(APIView):
     def post(self, request):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order_receive(user_id=request.user_id, **serializer.validated_data)
+        order_receive(
+            user_id=request.user.id,
+            **serializer.validated_data,
+        )
         return Response(
-            data="we recieve your order successfully. we notice you with email soon!",
+            data={
+                "detail": "we recieve your order successfully. we notice you with email!",  # noqa: E501
+            },
             status=201,
         )

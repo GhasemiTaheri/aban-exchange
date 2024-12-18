@@ -280,3 +280,4 @@ aban_exchange/media/
 .envs/*
 !.envs/.local/
 .idea/
+.vscode/launch.json

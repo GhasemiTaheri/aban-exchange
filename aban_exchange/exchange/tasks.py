@@ -4,8 +4,8 @@ from .services import order_validator
 
 
 @shared_task()
-async def handle_batch_of_request():
-    placed_order, droped_order = await order_validator()
+def handle_batch_of_request():
+    placed_order, droped_order = order_validator()
 
     if placed_order:
         placed_order_notif.delay(placed_order)

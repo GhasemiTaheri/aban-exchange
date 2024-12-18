@@ -1,10 +1,8 @@
 import json
 
-from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import transaction
 from django.db.utils import DatabaseError
-from django.utils.timezone import datetime
 
 from aban_exchange.users.models import User
 from aban_exchange.utils.exception.system import ServiceUnavailable
@@ -18,7 +16,6 @@ def order_receive(*, user_id: str, amount: int, price: int):
         "user_id": user_id,
         "amount": amount,
         "price": price,
-        "recieved_at": datetime.now(),
     }
     try:
         redis = RedisConnector.get_connection()
@@ -26,14 +23,15 @@ def order_receive(*, user_id: str, amount: int, price: int):
             settings.REQUEST_HANDLER_QUEUE_NAME,
             json.dumps(data),
         )
-    except Exception:
-        raise ServiceUnavailable()
+    except Exception:  # noqa: BLE001
+        msg = "Error on reciveing order, please try later!"
+        raise ServiceUnavailable(msg)  # noqa: B904
 
 
-async def order_validator():
+def order_validator():
     try:
-        redis = await RedisConnector.aget_connection()
-        items = await redis.lrange(
+        redis = RedisConnector.get_connection()
+        items = redis.lrange(
             settings.REQUEST_HANDLER_QUEUE_NAME,
             0,
             settings.REQUEST_HANDLER_BATCH_SIZE - 1,
@@ -42,13 +40,14 @@ async def order_validator():
             # placed order list, droped order list
             return [], []
 
-        await redis.ltrim(
+        redis.ltrim(
             settings.REQUEST_HANDLER_QUEUE_NAME,
             settings.REQUEST_HANDLER_BATCH_SIZE,
             -1,
         )
     except Exception as e:  # noqa: BLE001
-        raise ServiceUnavailable(f"Error accessing Redis: {e}")  # noqa: B904, EM102, TRY003
+        msg = f"Error accessing Redis: {e}"
+        raise ServiceUnavailable(msg)  # noqa: B904
 
     raw_orders = []
     order_owner_ids = []
@@ -57,13 +56,11 @@ async def order_validator():
         raw_orders.append(data)
         order_owner_ids.append(data["user_id"])
 
-    order_owner_queryset = await sync_to_async(
-        lambda: User.objects.filter(id__in=order_owner_ids).only(
-            "id",
-            "email",
-            "balance",
-        ),
-    )()
+    order_owner_queryset = User.objects.filter(id__in=order_owner_ids).only(
+        "id",
+        "email",
+        "balance",
+    )
 
     order_owner_map = {user.id: user for user in order_owner_queryset}
 
@@ -84,16 +81,15 @@ async def order_validator():
             user_balance_update.append(order_owner)
             placed_orders.append(order)
         else:
-            droped_orders.append(order)
+            droped_orders.append(order.user_id)
 
     try:
-        async with transaction.atomic():
+        with transaction.atomic():
             if user_balance_update:
-                await sync_to_async(
-                    lambda: User.objects.bulk_update(user_balance_update, ["balance"]),
-                )()
+                User.objects.bulk_update(user_balance_update, ["balance"])
             if placed_orders:
-                await sync_to_async(lambda: Order.objects.bulk_create(placed_orders))()
+                placed_orders = Order.objects.bulk_create(placed_orders)
+
     except DatabaseError as e:
         droped_orders.extend(placed_orders)
         placed_orders = []
@@ -101,4 +97,4 @@ async def order_validator():
         msg = f"Database transaction failed: {e}"
         raise ServiceUnavailable(msg)  # noqa: B904
 
-    return placed_orders, droped_orders
+    return [i.id for i in placed_orders], droped_orders
