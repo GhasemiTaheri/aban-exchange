@@ -13,8 +13,11 @@ class OrderCreateApi(APIView):
         amount = serializers.IntegerField(required=True, allow_null=False, min_value=1)
         price = serializers.IntegerField(required=True, allow_null=False, min_value=1)
 
-    async def post(self, request):
+    def post(self, request):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        await order_receive(user_id=request.user_id, **serializer.validated_data)
-        return Response(data="successful", status=201)
+        order_receive(user_id=request.user_id, **serializer.validated_data)
+        return Response(
+            data="we recieve your order successfully. we notice you with email soon!",
+            status=201,
+        )
