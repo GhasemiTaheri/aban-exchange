@@ -37,4 +37,4 @@ class UserSignupApi(APIView):
         except Exception:  # noqa: BLE001
             raise ValidationError(detail="data is not correct!")  # noqa: B904
 
-        return Response(data="success", status=201)
+        return Response(data={"detail": "success"}, status=201)

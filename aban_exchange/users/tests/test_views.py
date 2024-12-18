@@ -1,101 +1,55 @@
-from http import HTTPStatus
-
 import pytest
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.http import HttpRequest
-from django.http import HttpResponseRedirect
-from django.test import RequestFactory
+from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from rest_framework import status
+from rest_framework.test import APIClient
 
-from aban_exchange.users.forms import UserAdminChangeForm
-from aban_exchange.users.models import User
-from aban_exchange.users.tests.factories import UserFactory
-from aban_exchange.users.views import UserRedirectView
-from aban_exchange.users.views import UserUpdateView
-from aban_exchange.users.views import user_detail_view
-
-pytestmark = pytest.mark.django_db
+User = get_user_model()
 
 
-class TestUserUpdateView:
-    """
-    TODO:
-        extracting view initialization code as class-scoped fixture
-        would be great if only pytest-django supported non-function-scoped
-        fixture db access -- this is a work-in-progress for now:
-        https://github.com/pytest-dev/pytest-django/pull/258
-    """
+@pytest.mark.django_db
+class TestUserSignupApi:
+    def setup_method(self):
+        self.client = APIClient()
 
-    def dummy_get_response(self, request: HttpRequest):
-        return None
+    def test_signup_successful(self):
+        data = {
+            "username": "testuser",
+            "email": "testuser@example.com",
+            "password": "testpassword123",
+        }
 
-    def test_get_success_url(self, user: User, rf: RequestFactory):
-        view = UserUpdateView()
-        request = rf.get("/fake-url/")
-        request.user = user
+        response = self.client.post(reverse("api:users:create"), data, format="json")
 
-        view.request = request
-        assert view.get_success_url() == f"/users/{user.username}/"
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["detail"] == "success"
 
-    def test_get_object(self, user: User, rf: RequestFactory):
-        view = UserUpdateView()
-        request = rf.get("/fake-url/")
-        request.user = user
+        user = User.objects.get(username="testuser")
+        assert user.email == "testuser@example.com"
+        assert user.check_password("testpassword123")
 
-        view.request = request
+    def test_signup_invalid_data(self):
+        data = {"username": "testuser", "password": "testpassword123"}
 
-        assert view.get_object() == user
+        response = self.client.post(reverse("api:users:create"), data, format="json")
 
-    def test_form_valid(self, user: User, rf: RequestFactory):
-        view = UserUpdateView()
-        request = rf.get("/fake-url/")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "email" in response.data
 
-        # Add the session/message middleware to the request
-        SessionMiddleware(self.dummy_get_response).process_request(request)
-        MessageMiddleware(self.dummy_get_response).process_request(request)
-        request.user = user
+    def test_signup_duplicate_username(self):
+        User.objects.create_user(
+            username="testuser",
+            email="initial@example.com",
+            password="initialpassword123",  # noqa: S106
+        )
 
-        view.request = request
+        data = {
+            "username": "testuser",
+            "email": "newuser@example.com",
+            "password": "newpassword123",
+        }
 
-        # Initialize the form
-        form = UserAdminChangeForm()
-        form.cleaned_data = {}
-        form.instance = user
-        view.form_valid(form)
+        response = self.client.post(reverse("api:users:create"), data, format="json")
 
-        messages_sent = [m.message for m in messages.get_messages(request)]
-        assert messages_sent == [_("Information successfully updated")]
-
-
-class TestUserRedirectView:
-    def test_get_redirect_url(self, user: User, rf: RequestFactory):
-        view = UserRedirectView()
-        request = rf.get("/fake-url")
-        request.user = user
-
-        view.request = request
-        assert view.get_redirect_url() == f"/users/{user.username}/"
-
-
-class TestUserDetailView:
-    def test_authenticated(self, user: User, rf: RequestFactory):
-        request = rf.get("/fake-url/")
-        request.user = UserFactory()
-        response = user_detail_view(request, username=user.username)
-
-        assert response.status_code == HTTPStatus.OK
-
-    def test_not_authenticated(self, user: User, rf: RequestFactory):
-        request = rf.get("/fake-url/")
-        request.user = AnonymousUser()
-        response = user_detail_view(request, username=user.username)
-        login_url = reverse(settings.LOGIN_URL)
-
-        assert isinstance(response, HttpResponseRedirect)
-        assert response.status_code == HTTPStatus.FOUND
-        assert response.url == f"{login_url}?next=/fake-url/"
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "username" in response.data
