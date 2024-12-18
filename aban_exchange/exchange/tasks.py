@@ -6,6 +6,8 @@ from .services import order_validator
 @shared_task()
 def handle_batch_of_request(batch_size=1000):
     order_validator(batch_size)
+    # placed_order_notif.delay()
+    # droped_order_notif.delay()
 
 
 @shared_task()

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
 from django.db.models import PositiveIntegerField
-from django.urls import reverse
 
 
 class User(AbstractUser):
@@ -21,12 +20,3 @@ class User(AbstractUser):
 
     # token balance field used for save user assets count
     token_balance = PositiveIntegerField(default=0, verbose_name="Wallet balance")
-
-    def get_absolute_url(self) -> str:
-        """Get URL for user's detail view.
-
-        Returns:
-            str: URL for user detail.
-
-        """
-        return reverse("users:detail", kwargs={"username": self.username})

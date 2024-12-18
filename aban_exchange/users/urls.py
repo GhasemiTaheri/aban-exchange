@@ -1,12 +1,14 @@
+from django.urls import include
 from django.urls import path
 
-from .views import user_detail_view
-from .views import user_redirect_view
-from .views import user_update_view
+from .views import UserSignupApi
 
-app_name = "users"
-urlpatterns = [
-    path("~redirect/", view=user_redirect_view, name="redirect"),
-    path("~update/", view=user_update_view, name="update"),
-    path("<str:username>/", view=user_detail_view, name="detail"),
+user_url = [
+    path(
+        "sign-up/",
+        UserSignupApi.as_view(),
+        name="create",
+    ),
 ]
+
+urlpatterns = [path("user/", include((user_url, "users")))]

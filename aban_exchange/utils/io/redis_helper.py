@@ -1,4 +1,4 @@
-from django.conf import REDIS_URL
+from django.conf import settings
 from redis import Redis
 
 
@@ -12,7 +12,7 @@ class RedisConnector:
 
     def __init__(self):
         if not hasattr(self, "ـredis"):
-            self._redis = Redis.from_url(REDIS_URL, decode_response=True)
+            self._redis = Redis.from_url(settings.REDIS_URL, decode_response=True)
 
     def get_connection(self):
         return self._redis

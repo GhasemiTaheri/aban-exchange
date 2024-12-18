@@ -10,8 +10,6 @@ from aban_exchange.utils.exception.system import ServiceUnavailable
 from aban_exchange.utils.io.redis_helper import RedisConnector
 
 from .models import Order
-from .tasks import droped_order_notif
-from .tasks import placed_order_notif
 
 
 async def order_receive(*, user_id: str, amount: int, price: int):
@@ -88,8 +86,5 @@ def order_validator():
     with atomic:
         User.objects.bulk_update(user_balance_update, ["balance"])
         Order.objects.bulk_create(placed_orders)
-        placed_order_notif.delay(placed_order_notif)
 
-    droped_order_notif.delay(droped_orders)
-
-    return len(placed_orders), len(droped_order_notif)
+    return len(placed_orders), len(droped_orders)
