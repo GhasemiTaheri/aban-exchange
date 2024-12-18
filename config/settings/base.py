@@ -339,9 +339,10 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=5),
 }
 
-# Your stuff...
+# System presets
 # ------------------------------------------------------------------------------
 
+# order request handler
 REQUEST_HANDLER_QUEUE_NAME = env(
     "REQUEST_HANDLER_QUEUE_NAME",
     default="recieve_order_queue",
@@ -355,15 +356,13 @@ REQUEST_HANDLER_INTERVAL = env.int(
     default=500000,
 )
 
-ORDER_FILLER_BATCH_SIZE = env.int(
-    "ORDER_FILLER_BATCH_SIZE",
-    default=1000,
-)
+# order filler
 ORDER_FILLER_INTERVAL = env.int(
     "ORDER_FILLER_INTERVAL",
     default=10,
 )
 
+# trade settings
 TOKEN_PRICE = env.int(
     "TOKEN_PRICE",
     default=5,

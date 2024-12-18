@@ -19,12 +19,11 @@ CELERY_FLOWER_PASSWORD=sshPQImI2O5XFuN2KI8aOh1AZtHz0OErX3eJxBuPRp2vfQwazXKpTuvHG
 # ------------------------------------------------------------------------------
 REQUEST_HANDLER_QUEUE_NAME=recieve_order_queue
 REQUEST_HANDLER_BATCH_SIZE=500
-REQUEST_HANDLER_INTERVAL=1000000 # in microseconde = 1s
+REQUEST_HANDLER_INTERVAL=10000000 # in microseconde = 10s
 
 
 # Order filler settings
 # ------------------------------------------------------------------------------
-ORDER_FILLER_BATCH_SIZE=1000
 ORDER_FILLER_INTERVAL=10 # in seconds
 
 TOKEN_PRICE=5

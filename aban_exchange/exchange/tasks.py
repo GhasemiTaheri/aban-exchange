@@ -28,7 +28,8 @@ def placed_order_notif(order_list: list):
 @shared_task()
 def accumulate_batch_of_placed_order():
     order_owner_ids = order_filler()
-    filled_order_notif.delay(order_owner_ids)
+    if order_owner_ids:
+        filled_order_notif.delay(order_owner_ids)
 
 
 @shared_task()
