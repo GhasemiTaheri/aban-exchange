@@ -1,5 +1,6 @@
 from celery import shared_task
 
+from .services import order_filler
 from .services import order_validator
 
 
@@ -22,3 +23,14 @@ def droped_order_notif(order_list: list):
 @shared_task()
 def placed_order_notif(order_list: list):
     return f"placed order count {len(order_list)}"
+
+
+@shared_task()
+def accumulate_batch_of_placed_order():
+    order_owner_ids = order_filler()
+    filled_order_notif.delay(order_owner_ids)
+
+
+@shared_task()
+def filled_order_notif(user_ids: list):
+    return f"filled order count {len(user_ids)}"

@@ -19,4 +19,4 @@ class User(AbstractUser):
     balance = PositiveIntegerField(default=0, verbose_name="Wallet balance")
 
     # token balance field used for save user assets count
-    token_balance = PositiveIntegerField(default=0, verbose_name="Wallet balance")
+    token_balance = PositiveIntegerField(default=0, verbose_name="Token balance")

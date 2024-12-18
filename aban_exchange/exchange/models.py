@@ -25,7 +25,7 @@ class BaseOrder(BaseModel):
         abstract = True
 
     def __str__(self):
-        return f"user: {self.user_id}, {self.amount} on {self.price}"
+        return f"user: {self.user_id}, {self.amount}$ on price {self.price}"
 
 
 class Order(BaseOrder):
