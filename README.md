@@ -97,7 +97,7 @@ docker compose -f docker-compose.local.yml exec -d django python manage.py init_
 
 
 
-## بهبود های آنیده
+## بهبود های آینده
 
 #### بهبود قابلیت مقیاس‌پذیری سرویس
 اضافه کردن Load Balancer برای توزیع درخواست‌ها بین چند سرور و بهینه‌سازی عملکرد در زمان ترافیک بالا.
