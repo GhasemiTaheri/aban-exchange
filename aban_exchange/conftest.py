@@ -6,4 +6,4 @@ from aban_exchange.users.tests.factories import UserFactory
 
 @pytest.fixture
 def user(db) -> User:
-    return UserFactory()
+    return UserFactory(password="password123")  # noqa: S106

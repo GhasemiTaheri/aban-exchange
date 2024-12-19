@@ -120,7 +120,6 @@ def order_validator():
 
             # Map users by their IDs for quick lookup
             order_owner_map = {user.id: user for user in order_owner_queryset}
-
             user_balance_update = []  # Users whose balances will be updated
             placed_orders = []
             droped_orders = []
@@ -131,7 +130,7 @@ def order_validator():
                     price=_["price"],
                     amount=_["amount"],
                 )
-                order_owner = order_owner_map.get(order.user_id)
+                order_owner = order_owner_map.get(int(order.user_id))
 
                 # Check if the user has enough balance to place the order
                 if order_owner.balance >= order.amount:
