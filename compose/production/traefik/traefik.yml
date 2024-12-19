@@ -50,16 +50,6 @@ http:
         # https://doc.traefik.io/traefik/master/routing/routers/#certresolver
         certResolver: letsencrypt
 
-    web-media-router:
-      rule: '(Host(`abanexchange.com`) || Host(`www.abanexchange.com`)) && PathPrefix(`/media/`)'
-      entryPoints:
-        - web-secure
-      middlewares:
-        - csrf
-      service: django-media
-      tls:
-        certResolver: letsencrypt
-
   middlewares:
     csrf:
       # https://doc.traefik.io/traefik/master/middlewares/http/headers/#hostsproxyheaders
@@ -77,11 +67,6 @@ http:
       loadBalancer:
         servers:
           - url: http://flower:5555
-
-    django-media:
-      loadBalancer:
-        servers:
-          - url: http://nginx:80
 
 providers:
   # https://doc.traefik.io/traefik/master/providers/file/
