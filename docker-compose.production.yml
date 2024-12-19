@@ -2,7 +2,6 @@ volumes:
   production_postgres_data: {}
   production_postgres_data_backups: {}
   production_traefik: {}
-  production_django_media: {}
   
   production_redis_data: {}
   
@@ -15,8 +14,6 @@ services:
       dockerfile: ./compose/production/django/Dockerfile
 
     image: aban_exchange_production_django
-    volumes:
-      - production_django_media:/app/aban_exchange/media
     depends_on:
       - postgres
       - redis
